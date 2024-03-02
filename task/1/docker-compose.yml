@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8.3.0
+    restart: always
+    env_file: log_pass.env
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  wordpress:
+    image: wordpress:6.4.3
+    restart: always
+    ports:
+      - 4000:80
+    env_file: log_pass.env
+    depends_on:
+      - mysql
+    volumes:
+      - ./data/wp:/var/www/html
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5.2.1
+    restart: always
+    ports:
+      - 4001:80
+    env_file: log_pass.env
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
